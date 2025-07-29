@@ -1,6 +1,6 @@
 
 {
-  "name": "webrtc-group-call",
+  "name": "webrtc-group-call-rooms",
   "version": "1.0.0",
   "main": "server.js",
   "type": "module",

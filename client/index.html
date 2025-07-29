@@ -8,8 +8,15 @@
 </head>
 <body>
   <h1>WebRTC Group Call</h1>
-  <video id="localVideo" autoplay muted playsinline style="width:200px;"></video>
-  <div id="remoteVideos"></div>
+  <div id="joinScreen">
+    <input type="text" id="roomInput" placeholder="Enter room name" />
+    <button onclick="joinRoom()">Join Room</button>
+  </div>
+  <div id="callScreen" style="display:none;">
+    <h2 id="roomName"></h2>
+    <video id="localVideo" autoplay muted playsinline style="width:200px;"></video>
+    <div id="remoteVideos"></div>
+  </div>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="script.js"></script>
 </body>

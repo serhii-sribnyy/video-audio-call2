@@ -1,21 +1,32 @@
 
-const socket = io.connect('https://your-server-url.onrender.com');
+const serverUrl = window.location.origin;
+const socket = io.connect(serverUrl);
 const peers = {};
+let currentRoom = null;
 
-navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-  document.getElementById('localVideo').srcObject = stream;
-  socket.emit('join', 'room1');
+function joinRoom() {
+  const room = document.getElementById('roomInput').value.trim();
+  if (!room) return alert('Enter room name');
+  currentRoom = room;
+  document.getElementById('joinScreen').style.display = 'none';
+  document.getElementById('callScreen').style.display = 'block';
+  document.getElementById('roomName').innerText = 'Room: ' + room;
 
-  socket.on('user-joined', id => createPeer(id, stream, true));
-  socket.on('signal', handleSignal);
-  socket.on('user-left', id => {
-    if (peers[id]) {
-      peers[id].close();
-      delete peers[id];
-      document.getElementById(id)?.remove();
-    }
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+    document.getElementById('localVideo').srcObject = stream;
+    socket.emit('join', room);
+
+    socket.on('user-joined', id => createPeer(id, stream, true));
+    socket.on('signal', handleSignal);
+    socket.on('user-left', id => {
+      if (peers[id]) {
+        peers[id].close();
+        delete peers[id];
+        document.getElementById(id)?.remove();
+      }
+    });
   });
-});
+}
 
 function createPeer(id, stream, initiator) {
   const pc = new RTCPeerConnection();
@@ -23,7 +34,7 @@ function createPeer(id, stream, initiator) {
   peers[id] = pc;
 
   pc.onicecandidate = e => {
-    if (e.candidate) socket.emit('signal', { to: id, candidate: e.candidate });
+    if (e.candidate) socket.emit('signal', { room: currentRoom, to: id, candidate: e.candidate });
   };
 
   pc.ontrack = e => {
@@ -42,7 +53,7 @@ function createPeer(id, stream, initiator) {
   if (initiator) {
     pc.createOffer().then(offer => {
       pc.setLocalDescription(offer);
-      socket.emit('signal', { to: id, sdp: offer });
+      socket.emit('signal', { room: currentRoom, to: id, sdp: offer });
     });
   }
 
@@ -57,7 +68,7 @@ function handleSignal({ from, sdp, candidate }) {
       if (sdp.type === 'offer') {
         pc.createAnswer().then(answer => {
           pc.setLocalDescription(answer);
-          socket.emit('signal', { to: from, sdp: answer });
+          socket.emit('signal', { room: currentRoom, to: from, sdp: answer });
         });
       }
     });
