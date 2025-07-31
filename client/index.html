@@ -14,8 +14,10 @@
   </div>
   <div id="callScreen" style="display:none;">
     <h2 id="roomName"></h2>
-    <video id="localVideo" autoplay muted playsinline style="width:200px;"></video>
-    <div id="remoteVideos"></div>
+    <div style="display: flex; flex-direction: row;">
+      <video id="localVideo" autoplay muted playsinline style="width:500px;"></video>
+      <div id="remoteVideos"></div>
+    </div>
   </div>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script src="script.js"></script>
